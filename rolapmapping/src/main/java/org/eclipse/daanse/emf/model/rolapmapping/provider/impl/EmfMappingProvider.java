@@ -15,11 +15,11 @@ package org.eclipse.daanse.emf.model.rolapmapping.provider.impl;
 import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.daanse.emf.model.rolapmapping.RolapMappingPackage;
 import org.eclipse.daanse.emf.model.rolapmapping.provider.Constants;
 import org.eclipse.daanse.emf.model.rolapmapping.provider.EmfMappingProviderConfig;
-import org.eclipse.daanse.emf.model.rolapmapping.RolapMappingPackage;
-import org.eclipse.daanse.rolap.mapping.api.RolapContextMappingSupplier;
-import org.eclipse.daanse.rolap.mapping.api.model.RolapContextMapping;
+import org.eclipse.daanse.rolap.mapping.api.CatalogMappingSupplier;
+import org.eclipse.daanse.rolap.mapping.api.model.CatalogMapping;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -32,14 +32,14 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 import org.osgi.service.metatype.annotations.Designate;
 
-@Component(service = RolapContextMappingSupplier.class, scope = ServiceScope.SINGLETON, configurationPid = Constants.PID_EMF_MAPPING_PROVIDER)
+@Component(service = CatalogMappingSupplier.class, scope = ServiceScope.SINGLETON, configurationPid = Constants.PID_EMF_MAPPING_PROVIDER)
 @Designate(factory = true, ocd = EmfMappingProviderConfig.class)
-public class EmfMappingProvider implements RolapContextMappingSupplier {
+public class EmfMappingProvider implements CatalogMappingSupplier {
 
     @Reference(target = "(" + EMFNamespaces.EMF_MODEL_NAME + "=" +RolapMappingPackage.eNAME + ")")
     private ResourceSet resourceSet;
 
-    private RolapContextMapping rolapContextMapping;
+    private CatalogMapping catalogMapping;
 
     @Activate
     public void activate(EmfMappingProviderConfig config) throws IOException {
@@ -51,8 +51,8 @@ public class EmfMappingProvider implements RolapContextMappingSupplier {
 
         EObject root = resource.getContents().get(0);
 
-        if (root instanceof RolapContextMapping rcm) {
-            rolapContextMapping = rcm;
+        if (root instanceof CatalogMapping rcm) {
+            catalogMapping = rcm;
         }
     }
 
@@ -62,8 +62,8 @@ public class EmfMappingProvider implements RolapContextMappingSupplier {
     }
 
     @Override
-    public RolapContextMapping get() {
-        return rolapContextMapping;
+    public CatalogMapping get() {
+        return catalogMapping;
     }
 
     private void cleanAllResources() {

@@ -22,20 +22,6 @@
       disposableProviderFactory="true" ecorePackage="org.eclipse.daanse.emf.model.rolapmapping.ecore#/">
     <genDataTypes ecoreDataType="org.eclipse.daanse.emf.model.rolapmapping.ecore#//SQLStatement"/>
     <genDataTypes ecoreDataType="org.eclipse.daanse.emf.model.rolapmapping.ecore#//Formula"/>
-    <genClasses ecoreClass="org.eclipse.daanse.emf.model.rolapmapping.ecore#//RolapContext">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//RolapContext/catalogs"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//RolapContext/schemas"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//RolapContext/cubes"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//RolapContext/dimensions"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//RolapContext/hierarchies"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//RolapContext/levels"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//RolapContext/formatters"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//RolapContext/dbschemas"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//RolapContext/measures"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//RolapContext/accessRoles"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//RolapContext/aggregationTables"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//RolapContext/aggregationExcludes"/>
-    </genClasses>
     <genClasses ecoreClass="org.eclipse.daanse.emf.model.rolapmapping.ecore#//Documentation">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute org.eclipse.daanse.emf.model.rolapmapping.ecore#//Documentation/value"/>
     </genClasses>
@@ -52,6 +38,16 @@
     </genClasses>
     <genClasses ecoreClass="org.eclipse.daanse.emf.model.rolapmapping.ecore#//Catalog">
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//Catalog/schemas"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//Catalog/cubes"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//Catalog/dimensions"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//Catalog/hierarchies"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//Catalog/levels"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//Catalog/formatters"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//Catalog/dbschemas"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//Catalog/measures"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//Catalog/accessRoles"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//Catalog/aggregationTables"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//Catalog/aggregationExcludes"/>
     </genClasses>
     <genClasses ecoreClass="org.eclipse.daanse.emf.model.rolapmapping.ecore#//Schema">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference org.eclipse.daanse.emf.model.rolapmapping.ecore#//Schema/parameters"/>
@@ -439,7 +435,6 @@
     <genClasses image="false" ecoreClass="org.eclipse.daanse.emf.model.rolapmapping.ecore#//IPhysicalCube"/>
     <genClasses image="false" ecoreClass="org.eclipse.daanse.emf.model.rolapmapping.ecore#//IQuery"/>
     <genClasses image="false" ecoreClass="org.eclipse.daanse.emf.model.rolapmapping.ecore#//IRelationalQuery"/>
-    <genClasses image="false" ecoreClass="org.eclipse.daanse.emf.model.rolapmapping.ecore#//IRolapContext"/>
     <genClasses image="false" ecoreClass="org.eclipse.daanse.emf.model.rolapmapping.ecore#//ISchema"/>
     <genClasses image="false" ecoreClass="org.eclipse.daanse.emf.model.rolapmapping.ecore#//ISQLExpression"/>
     <genClasses image="false" ecoreClass="org.eclipse.daanse.emf.model.rolapmapping.ecore#//ISQL"/>

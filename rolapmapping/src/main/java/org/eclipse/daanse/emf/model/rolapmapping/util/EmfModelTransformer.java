@@ -65,7 +65,6 @@ import org.eclipse.daanse.emf.model.rolapmapping.Parameter;
 import org.eclipse.daanse.emf.model.rolapmapping.ParentChildLink;
 import org.eclipse.daanse.emf.model.rolapmapping.PhysicalCube;
 import org.eclipse.daanse.emf.model.rolapmapping.Query;
-import org.eclipse.daanse.emf.model.rolapmapping.RolapContext;
 import org.eclipse.daanse.emf.model.rolapmapping.RolapMappingFactory;
 import org.eclipse.daanse.emf.model.rolapmapping.SQL;
 import org.eclipse.daanse.emf.model.rolapmapping.SQLExpression;
@@ -129,7 +128,6 @@ import org.eclipse.daanse.rolap.mapping.api.model.ParameterMapping;
 import org.eclipse.daanse.rolap.mapping.api.model.ParentChildLinkMapping;
 import org.eclipse.daanse.rolap.mapping.api.model.PhysicalCubeMapping;
 import org.eclipse.daanse.rolap.mapping.api.model.QueryMapping;
-import org.eclipse.daanse.rolap.mapping.api.model.RolapContextMapping;
 import org.eclipse.daanse.rolap.mapping.api.model.SQLExpressionMapping;
 import org.eclipse.daanse.rolap.mapping.api.model.SQLMapping;
 import org.eclipse.daanse.rolap.mapping.api.model.SchemaMapping;
@@ -145,76 +143,66 @@ import org.eclipse.daanse.rolap.mapping.api.model.WritebackTableMapping;
 
 public class EmfModelTransformer {
 
-    private RolapContext rolapContext;
+    private Catalog catalog_;
 
-    public RolapContext transform(RolapContextMapping rc) {
-        rolapContext = RolapMappingFactory.eINSTANCE.createRolapContext();
-        transformDbschemas(rc.getDbschemas());
-        transformFormatters(rc.getFormatters());
-        transformAggregationExcludes(rc.getAggregationExcludes());
-        transformAggregationTables(rc.getAggregationTables());
-        transformMeasures(rc.getMeasures());
-        transformLevels(rc.getLevels());
-        transformHierarchies(rc.getHierarchies());
-        transformDimensions(rc.getDimensions());
-        transformCubes(rc.getCubes());
-        transformAccessRoles(rc.getAccessRoles());
-        transformSchemas(rc.getSchemas());
-        transformCatalogs(rc.getCatalogs());
-        return rolapContext;
+    public Catalog transform(CatalogMapping catalogApi) {
+        catalog_ = RolapMappingFactory.eINSTANCE.createCatalog();
+        transformDbschemas(catalogApi.getDbschemas());
+        transformSchemas(catalogApi.getSchemas());
+
+        catalog_.getAnnotations().addAll(transformAnnotations(catalogApi.getAnnotations()));
+        catalog_.setId(catalogApi.getId());
+        catalog_.setDescription(catalogApi.getDescription());
+        catalog_.setName(catalogApi.getName());
+        return catalog_;
     }
 
     private Optional<org.eclipse.daanse.emf.model.rdbstructure.DatabaseSchema> findDatabaseSchemaById(String id) {
-        return rolapContext.getDbschemas().stream().filter(ds -> ds.getId().equals(id)).findAny();
+        return catalog_.getDbschemas().stream().filter(ds -> ds.getId().equals(id)).findAny();
     }
 
     private Optional<Formatter> findFormatterById(String id) {
-        return rolapContext.getFormatters().stream().filter(f -> f.getId().equals(id)).findAny();
+        return catalog_.getFormatters().stream().filter(f -> f.getId().equals(id)).findAny();
     }
 
     private Optional<AggregationExclude> findAggregationExcludeById(String id) {
-        return rolapContext.getAggregationExcludes().stream().filter(ae -> ae.getId().equals(id)).findAny();
+        return catalog_.getAggregationExcludes().stream().filter(ae -> ae.getId().equals(id)).findAny();
     }
 
     private Optional<AggregationTable> findAggregationTableById(String id) {
-        return rolapContext.getAggregationTables().stream().filter(at -> at.getId().equals(id)).findAny();
+        return catalog_.getAggregationTables().stream().filter(at -> at.getId().equals(id)).findAny();
     }
 
     private Optional<Measure> findMeasureById(String id) {
-        return rolapContext.getMeasures().stream().filter(m -> m.getId().equals(id)).findAny();
+        return catalog_.getMeasures().stream().filter(m -> m.getId().equals(id)).findAny();
     }
 
     private Optional<Level> findLevelById(String id) {
-        return rolapContext.getLevels().stream().filter(l -> l.getId().equals(id)).findAny();
+        return catalog_.getLevels().stream().filter(l -> l.getId().equals(id)).findAny();
     }
 
     private Optional<Hierarchy> findHierarchyById(String id) {
-        return rolapContext.getHierarchies().stream().filter(h -> h.getId().equals(id)).findAny();
+        return catalog_.getHierarchies().stream().filter(h -> h.getId().equals(id)).findAny();
     }
 
     private Optional<Dimension> findDimensionById(String id) {
-        return rolapContext.getDimensions().stream().filter(d -> d.getId().equals(id)).findAny();
+        return catalog_.getDimensions().stream().filter(d -> d.getId().equals(id)).findAny();
     }
 
     private Optional<Cube> findCubeById(String id) {
-        return rolapContext.getCubes().stream().filter(c -> c.getId().equals(id)).findAny();
+        return catalog_.getCubes().stream().filter(c -> c.getId().equals(id)).findAny();
     }
 
     private Optional<AccessRole> findAccessRoleById(String id) {
-        return rolapContext.getAccessRoles().stream().filter(c -> c.getId().equals(id)).findAny();
+        return catalog_.getAccessRoles().stream().filter(c -> c.getId().equals(id)).findAny();
     }
 
     private Optional<Schema> findSchemaById(String id) {
-        return rolapContext.getSchemas().stream().filter(s -> s.getId().equals(id)).findAny();
-    }
-
-    private Optional<Catalog> findCatalogById(String id) {
-        return rolapContext.getCatalogs().stream().filter(c -> c.getId().equals(id)).findAny();
+        return catalog_.getSchemas().stream().filter(s -> s.getId().equals(id)).findAny();
     }
 
     private List<? extends AggregationExclude> transformAggregationExcludes(
-        List<? extends AggregationExcludeMapping> aggregationExcludes
-    ) {
+            List<? extends AggregationExcludeMapping> aggregationExcludes) {
         return aggregationExcludes.stream().map(a -> transformAggregationExclude(a)).toList();
     }
 
@@ -228,14 +216,13 @@ public class EmfModelTransformer {
             emfAE.setName(a.getName());
             emfAE.setPattern(a.getPattern());
             emfAE.setId(a.getId());
-            rolapContext.getAggregationExcludes().add(emfAE);
+            catalog_.getAggregationExcludes().add(emfAE);
             return emfAE;
         }
     }
 
     private List<? extends AggregationTable> transformAggregationTables(
-        List<? extends AggregationTableMapping> aggregationTables
-    ) {
+            List<? extends AggregationTableMapping> aggregationTables) {
         return aggregationTables.stream().map(a -> transformAggregationTable(a)).toList();
     }
 
@@ -248,38 +235,38 @@ public class EmfModelTransformer {
                 AggregationName emfAN = RolapMappingFactory.eINSTANCE.createAggregationName();
                 emfAN.setAggregationFactCount(transformAggregationColumnName(aN.getAggregationFactCount()));
                 emfAN.getAggregationIgnoreColumns()
-                    .addAll(transformAggregationColumnNames(aN.getAggregationIgnoreColumns()));
+                        .addAll(transformAggregationColumnNames(aN.getAggregationIgnoreColumns()));
                 emfAN.getAggregationForeignKeys()
-                    .addAll(transformAggregationForeignKeys(aN.getAggregationForeignKeys()));
+                        .addAll(transformAggregationForeignKeys(aN.getAggregationForeignKeys()));
                 emfAN.getAggregationMeasures().addAll(transformAggregationMeasures(aN.getAggregationMeasures()));
                 emfAN.getAggregationLevels().addAll(transformAggregationLevels(aN.getAggregationLevels()));
                 emfAN.getAggregationMeasureFactCounts()
-                    .addAll(transformAggregationMeasureFactCounts(aN.getAggregationMeasureFactCounts()));
+                        .addAll(transformAggregationMeasureFactCounts(aN.getAggregationMeasureFactCounts()));
                 emfAN.setIgnorecase(aN.isIgnorecase());
                 emfAN.setId(aN.getId());
 
                 emfAN.setApproxRowCount(aN.getApproxRowCount());
                 emfAN.setName(aN.getName());
-                rolapContext.getAggregationTables().add(emfAN);
+                catalog_.getAggregationTables().add(emfAN);
                 return emfAN;
             }
             if (at instanceof AggregationPatternMapping aP) {
                 AggregationPattern emfAP = RolapMappingFactory.eINSTANCE.createAggregationPattern();
                 emfAP.setAggregationFactCount(transformAggregationColumnName(aP.getAggregationFactCount()));
                 emfAP.getAggregationIgnoreColumns()
-                    .addAll(transformAggregationColumnNames(aP.getAggregationIgnoreColumns()));
+                        .addAll(transformAggregationColumnNames(aP.getAggregationIgnoreColumns()));
                 emfAP.getAggregationForeignKeys()
-                    .addAll(transformAggregationForeignKeys(aP.getAggregationForeignKeys()));
+                        .addAll(transformAggregationForeignKeys(aP.getAggregationForeignKeys()));
                 emfAP.getAggregationMeasures().addAll(transformAggregationMeasures(aP.getAggregationMeasures()));
                 emfAP.getAggregationLevels().addAll(transformAggregationLevels(aP.getAggregationLevels()));
                 emfAP.getAggregationMeasureFactCounts()
-                    .addAll(transformAggregationMeasureFactCounts(aP.getAggregationMeasureFactCounts()));
+                        .addAll(transformAggregationMeasureFactCounts(aP.getAggregationMeasureFactCounts()));
                 emfAP.setIgnorecase(aP.isIgnorecase());
                 emfAP.setId(aP.getId());
 
                 emfAP.setPattern(aP.getPattern());
                 emfAP.getExcludes().addAll(transformAggregationExcludes(aP.getExcludes()));
-                rolapContext.getAggregationTables().add(emfAP);
+                catalog_.getAggregationTables().add(emfAP);
                 return emfAP;
             }
             return null;
@@ -287,14 +274,12 @@ public class EmfModelTransformer {
     }
 
     private Collection<? extends AggregationColumnName> transformAggregationColumnNames(
-        List<? extends AggregationColumnNameMapping> aggregationIgnoreColumns
-    ) {
+            List<? extends AggregationColumnNameMapping> aggregationIgnoreColumns) {
         return aggregationIgnoreColumns.stream().map(acn -> transformAggregationColumnName(acn)).toList();
     }
 
     private List<? extends AggregationMeasureFactCount> transformAggregationMeasureFactCounts(
-        List<? extends AggregationMeasureFactCountMapping> aggregationMeasureFactCounts
-    ) {
+            List<? extends AggregationMeasureFactCountMapping> aggregationMeasureFactCounts) {
         return aggregationMeasureFactCounts.stream().map(amfc -> transformAggregationMeasureFactCount(amfc)).toList();
     }
 
@@ -306,15 +291,14 @@ public class EmfModelTransformer {
     }
 
     private List<? extends AggregationLevel> transformAggregationLevels(
-        List<? extends AggregationLevelMapping> aggregationLevels
-    ) {
+            List<? extends AggregationLevelMapping> aggregationLevels) {
         return aggregationLevels.stream().map(al -> transformAggregationLevel(al)).toList();
     }
 
     private AggregationLevel transformAggregationLevel(AggregationLevelMapping al) {
         AggregationLevel emfAL = RolapMappingFactory.eINSTANCE.createAggregationLevel();
         emfAL.getAggregationLevelProperties()
-            .addAll(transformAggregationLevelProperties(al.getAggregationLevelProperties()));
+                .addAll(transformAggregationLevelProperties(al.getAggregationLevelProperties()));
         emfAL.setCaptionColumn(al.getCaptionColumn());
         emfAL.setCollapsed(al.isCollapsed());
         emfAL.setColumn(al.getColumn());
@@ -325,8 +309,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends AggregationLevelProperty> transformAggregationLevelProperties(
-        List<? extends AggregationLevelPropertyMapping> aggregationLevelProperties
-    ) {
+            List<? extends AggregationLevelPropertyMapping> aggregationLevelProperties) {
         return aggregationLevelProperties.stream().map(alp -> transformAggregationLevelProperty(alp)).toList();
     }
 
@@ -338,8 +321,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends AggregationMeasure> transformAggregationMeasures(
-        List<? extends AggregationMeasureMapping> aggregationMeasures
-    ) {
+            List<? extends AggregationMeasureMapping> aggregationMeasures) {
         return aggregationMeasures.stream().map(am -> transformAggregationMeasure(am)).toList();
     }
 
@@ -352,8 +334,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends AggregationForeignKey> transformAggregationForeignKeys(
-        List<? extends AggregationForeignKeyMapping> aggregationForeignKeys
-    ) {
+            List<? extends AggregationForeignKeyMapping> aggregationForeignKeys) {
         return aggregationForeignKeys.stream().map(afk -> transformAggregationForeignKey(afk)).toList();
     }
 
@@ -390,7 +371,7 @@ public class EmfModelTransformer {
 
                 emfAR.getAccessSchemaGrants().addAll(transformAccessSchemaGrants(a.getAccessSchemaGrants()));
                 emfAR.getReferencedAccessRoles().addAll(transformAccessRoles(a.getReferencedAccessRoles()));
-                rolapContext.getAccessRoles().add(emfAR);
+                catalog_.getAccessRoles().add(emfAR);
                 return emfAR;
             }
         }
@@ -398,8 +379,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends AccessSchemaGrant> transformAccessSchemaGrants(
-        List<? extends AccessSchemaGrantMapping> accessSchemaGrants
-    ) {
+            List<? extends AccessSchemaGrantMapping> accessSchemaGrants) {
         return accessSchemaGrants.stream().map(asg -> transformAccessSchemaGrant(asg)).toList();
     }
 
@@ -411,8 +391,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends AccessCubeGrant> transformAccessCubeGrants(
-        List<? extends AccessCubeGrantMapping> cubeGrants
-    ) {
+            List<? extends AccessCubeGrantMapping> cubeGrants) {
         return cubeGrants.stream().map(cg -> transformAccessCubeGrant(cg)).toList();
     }
 
@@ -426,8 +405,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends AccessHierarchyGrant> transformAccessHierarchyGrants(
-        List<? extends AccessHierarchyGrantMapping> hierarchyGrants
-    ) {
+            List<? extends AccessHierarchyGrantMapping> hierarchyGrants) {
         return hierarchyGrants.stream().map(hg -> transformAccessHierarchyGrant(hg)).toList();
     }
 
@@ -444,8 +422,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends AccessMemberGrant> transformAccessMemberGrants(
-        List<? extends AccessMemberGrantMapping> memberGrants
-    ) {
+            List<? extends AccessMemberGrantMapping> memberGrants) {
         return memberGrants.stream().map(mg -> transformAccessDimensionGrant(mg)).toList();
     }
 
@@ -457,8 +434,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends AccessDimensionGrant> transformAccessDimensionGrants(
-        List<? extends AccessDimensionGrantMapping> dimensionGrants
-    ) {
+            List<? extends AccessDimensionGrantMapping> dimensionGrants) {
         return dimensionGrants.stream().map(dg -> transformAccessDimensionGrant(dg)).toList();
     }
 
@@ -484,7 +460,7 @@ public class EmfModelTransformer {
                 emfM.setId(m.getId());
                 emfM.setMeasureExpression(transformSQLExpression(m.getMeasureExpression()));
                 emfM.getCalculatedMemberProperty()
-                    .addAll(transformCalculatedMemberProperties(m.getCalculatedMemberProperty()));
+                        .addAll(transformCalculatedMemberProperties(m.getCalculatedMemberProperty()));
                 emfM.setCellFormatter(transformCellFormatter(m.getCellFormatter()));
                 emfM.setBackColor(m.getBackColor());
                 emfM.setColumn(m.getColumn());
@@ -494,7 +470,7 @@ public class EmfModelTransformer {
                 emfM.setFormatter(m.getFormatter());
                 emfM.setVisible(m.isVisible());
                 emfM.setName(m.getName());
-                rolapContext.getMeasures().add(emfM);
+                catalog_.getMeasures().add(emfM);
                 return emfM;
             }
         }
@@ -502,8 +478,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends CalculatedMemberProperty> transformCalculatedMemberProperties(
-        List<? extends CalculatedMemberPropertyMapping> calculatedMemberProperties
-    ) {
+            List<? extends CalculatedMemberPropertyMapping> calculatedMemberProperties) {
         return calculatedMemberProperties.stream().map(cmp -> transformCalculatedMemberProperty(cmp)).toList();
     }
 
@@ -521,37 +496,34 @@ public class EmfModelTransformer {
     }
 
     private List<org.eclipse.daanse.emf.model.rdbstructure.DatabaseSchema> transformDbschemas(
-        List<? extends org.eclipse.daanse.rdb.structure.api.model.DatabaseSchema> dbschemas
-    ) {
+            List<? extends org.eclipse.daanse.rdb.structure.api.model.DatabaseSchema> dbschemas) {
         return dbschemas.stream().map(d -> transformDbschemas(d)).toList();
     }
 
     private org.eclipse.daanse.emf.model.rdbstructure.DatabaseSchema transformDbschemas(
-        org.eclipse.daanse.rdb.structure.api.model.DatabaseSchema d
-    ) {
+            org.eclipse.daanse.rdb.structure.api.model.DatabaseSchema d) {
         Optional<org.eclipse.daanse.emf.model.rdbstructure.DatabaseSchema> oDs = findDatabaseSchemaById(d.getId());
         if (oDs.isPresent()) {
             return oDs.get();
         } else {
             org.eclipse.daanse.emf.model.rdbstructure.DatabaseSchema emfDs = RelationalDatabaseFactory.eINSTANCE
-                .createDatabaseSchema();
+                    .createDatabaseSchema();
             emfDs.setId(d.getId());
             emfDs.setName(d.getName());
             emfDs.getTables().addAll(transformDatabaseTables(d.getTables()));
-            rolapContext.getDbschemas().add(emfDs);
+            catalog_.getDbschemas().add(emfDs);
             return emfDs;
         }
     }
 
     private List<? extends org.eclipse.daanse.emf.model.rdbstructure.Table> transformDatabaseTables(
-        List<? extends Table> list
-    ) {
+            List<? extends Table> list) {
         return list.stream().map(t -> transformDatabaseTable(t)).toList();
     }
 
     private org.eclipse.daanse.emf.model.rdbstructure.Table transformDatabaseTable(Table t) {
         org.eclipse.daanse.emf.model.rdbstructure.Table emfDt = RelationalDatabaseFactory.eINSTANCE
-            .createPhysicalTable();
+                .createPhysicalTable();
         emfDt.setName(t.getName());
         emfDt.setDescription(t.getDescription());
         emfDt.getColumns().addAll(transformDatabaseColumns(t.getColumns()));
@@ -559,8 +531,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends org.eclipse.daanse.emf.model.rdbstructure.Column> transformDatabaseColumns(
-        List<? extends Column> columns
-    ) {
+            List<? extends Column> columns) {
         return columns.stream().map(dc -> transformDatabaseColumn(dc)).toList();
     }
 
@@ -607,7 +578,7 @@ public class EmfModelTransformer {
                 emfL.setUniqueMembers(l.isUniqueMembers());
                 emfL.setVisible(l.isVisible());
                 emfL.setName(l.getName());
-                rolapContext.getLevels().add(emfL);
+                catalog_.getLevels().add(emfL);
                 return emfL;
             }
         }
@@ -629,8 +600,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends MemberProperty> transformMemberProperties(
-        List<? extends MemberPropertyMapping> memberProperties
-    ) {
+            List<? extends MemberPropertyMapping> memberProperties) {
         return memberProperties.stream().map(mp -> transformMemberProperty(mp)).toList();
     }
 
@@ -723,16 +693,16 @@ public class EmfModelTransformer {
                 emfH.setUniqueKeyLevelName(h.getAllLevelName());
                 emfH.setVisible(h.isVisible());
                 emfH.setQuery(transformQuery(h.getQuery()));
-                rolapContext.getHierarchies().add(emfH);
+                catalog_.getHierarchies().add(emfH);
                 return emfH;
             }
+
         }
         return null;
     }
 
     private Collection<? extends MemberReaderParameter> transformMemberReaderParameter(
-        List<? extends MemberReaderParameterMapping> memberReaderParameters
-    ) {
+            List<? extends MemberReaderParameterMapping> memberReaderParameters) {
         return memberReaderParameters.stream().map(p -> transformMemberReaderParameters(p)).toList();
     }
 
@@ -762,7 +732,7 @@ public class EmfModelTransformer {
                 emfD.getHierarchies().addAll(transformHierarchies(sd.getHierarchies()));
                 emfD.setUsagePrefix(sd.getUsagePrefix());
                 emfD.setVisible(sd.isVisible());
-                rolapContext.getDimensions().add(emfD);
+                catalog_.getDimensions().add(emfD);
                 return emfD;
             }
             if (d instanceof TimeDimensionMapping td) {
@@ -775,7 +745,7 @@ public class EmfModelTransformer {
                 emfD.getHierarchies().addAll(transformHierarchies(td.getHierarchies()));
                 emfD.setUsagePrefix(td.getUsagePrefix());
                 emfD.setVisible(td.isVisible());
-                rolapContext.getDimensions().add(emfD);
+                catalog_.getDimensions().add(emfD);
                 return emfD;
             }
             return null;
@@ -812,7 +782,7 @@ public class EmfModelTransformer {
                 emfFC.setEnabled(pcm.isEnabled());
                 emfFC.setVisible(pcm.isVisible());
                 emfFC.getMeasureGroups().addAll(transformnullMeasureGroups(pcm.getMeasureGroups()));
-                rolapContext.getCubes().add(emfFC);
+                catalog_.getCubes().add(emfFC);
                 return emfFC;
             }
             if (c instanceof VirtualCubeMapping vcm) {
@@ -833,7 +803,7 @@ public class EmfModelTransformer {
                 emfVC.setEnabled(vcm.isEnabled());
                 emfVC.setVisible(vcm.isVisible());
                 emfVC.getMeasureGroups().addAll(transformnullMeasureGroups(vcm.getMeasureGroups()));
-                rolapContext.getCubes().add(emfVC);
+                catalog_.getCubes().add(emfVC);
                 return emfVC;
             }
             return null;
@@ -890,8 +860,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends CalculatedMember> transformCalculatedMembers(
-        List<? extends CalculatedMemberMapping> calculatedMembers
-    ) {
+            List<? extends CalculatedMemberMapping> calculatedMembers) {
         return calculatedMembers.stream().map(cm -> transformCalculatedMember(cm)).toList();
     }
 
@@ -904,7 +873,7 @@ public class EmfModelTransformer {
 //        emfCM.setDocumentation(transformDocumentation(cm.getDocumentation()));
 
         emfCM.getCalculatedMemberProperties()
-            .addAll(transformCalculatedMemberProperties(cm.getCalculatedMemberProperties()));
+                .addAll(transformCalculatedMemberProperties(cm.getCalculatedMemberProperties()));
         emfCM.setCellFormatter(transformCellFormatter(cm.getCellFormatter()));
         emfCM.setFormula(cm.getFormula());
         emfCM.setDisplayFolder(cm.getDisplayFolder());
@@ -916,8 +885,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends DimensionConnector> transformDimensionConnectors(
-        List<? extends DimensionConnectorMapping> dimensionConnectors
-    ) {
+            List<? extends DimensionConnectorMapping> dimensionConnectors) {
         return dimensionConnectors.stream().map(dc -> transformDimensionConnector(dc)).toList();
     }
 
@@ -965,8 +933,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends WritebackMeasure> transformWritebackMeasures(
-        List<? extends WritebackMeasureMapping> writebackMeasures
-    ) {
+            List<? extends WritebackMeasureMapping> writebackMeasures) {
         return writebackMeasures.stream().map(m -> transformWritebackMeasure(m)).toList();
     }
 
@@ -978,8 +945,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends WritebackAttribute> transformWritebackAttributes(
-        List<? extends WritebackAttributeMapping> writebackAttributes
-    ) {
+            List<? extends WritebackAttributeMapping> writebackAttributes) {
         return writebackAttributes.stream().map(a -> transformWritebackAttribute(a)).toList();
     }
 
@@ -1022,8 +988,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends InlineTableColumnDefinition> transformInlineTableColumnDefinitions(
-        List<? extends InlineTableColumnDefinitionMapping> columnDefinitions
-    ) {
+            List<? extends InlineTableColumnDefinitionMapping> columnDefinitions) {
         return columnDefinitions.stream().map(cd -> transformInlineTableColumnDefinition(cd)).toList();
     }
 
@@ -1045,8 +1010,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends InlineTableRowCell> transformInlineTableRowCells(
-        List<? extends InlineTableRowCellMapping> cells
-    ) {
+            List<? extends InlineTableRowCellMapping> cells) {
         return cells.stream().map(c -> transformInlineTableRowCell(c)).toList();
     }
 
@@ -1084,8 +1048,7 @@ public class EmfModelTransformer {
     }
 
     private List<? extends TableQueryOptimizationHint> transformOptimizationHints(
-        List<? extends TableQueryOptimizationHintMapping> optimizationHints
-    ) {
+            List<? extends TableQueryOptimizationHintMapping> optimizationHints) {
         return optimizationHints.stream().map(oh -> transformTableQueryOptimizationHint(oh)).toList();
     }
 
@@ -1117,7 +1080,7 @@ public class EmfModelTransformer {
             emfS.getAccessRoles().addAll(transformAccessRoles(s.getAccessRoles()));
             emfS.setDefaultAccessRole(transformAccessRole(s.getDefaultAccessRole()));
             emfS.setMeasuresDimensionName(s.getMeasuresDimensionName());
-            rolapContext.getSchemas().add(emfS);
+            catalog_.getSchemas().add(emfS);
             return emfS;
         }
     }
@@ -1152,27 +1115,6 @@ public class EmfModelTransformer {
         return emfP;
     }
 
-    private List<? extends Catalog> transformCatalogs(List<? extends CatalogMapping> catalogs) {
-        return catalogs.stream().map(c -> transformCatalog(c)).toList();
-    }
-
-    private Catalog transformCatalog(CatalogMapping c) {
-        Optional<Catalog> oC = findCatalogById(c.getId());
-        if (oC.isPresent()) {
-            return oC.get();
-        } else {
-            Catalog emfC = RolapMappingFactory.eINSTANCE.createCatalog();
-            emfC.getAnnotations().addAll(transformAnnotations(c.getAnnotations()));
-            emfC.setId(c.getId());
-            emfC.setDescription(c.getDescription());
-            emfC.setName(c.getName());
-//            emfC.setDocumentation(transformDocumentation(c.getDocumentation()));
-            emfC.getSchemas().addAll(transformSchemas(c.getSchemas()));
-            rolapContext.getCatalogs().add(emfC);
-            return emfC;
-        }
-    }
-
     private List<? extends Formatter> transformFormatters(List<? extends FormatterMapping> formatters) {
         if (formatters != null) {
             return formatters.stream().map(f -> transformFormatter(f)).toList();
@@ -1188,18 +1130,18 @@ public class EmfModelTransformer {
             Formatter formatter = null;
             if (f instanceof CellFormatterMapping cfm) {
                 formatter = transformCellFormatter(cfm);
-                rolapContext.getFormatters().add(formatter);
+                catalog_.getFormatters().add(formatter);
                 return formatter;
             }
             if (f instanceof MemberFormatterMapping mfm) {
                 formatter = transformMemberFormatter(mfm);
-                rolapContext.getFormatters().add(formatter);
+                catalog_.getFormatters().add(formatter);
                 return formatter;
 
             }
             if (f instanceof MemberPropertyFormatterMapping mpfm) {
                 formatter = transformMemberPropertyFormatter(mpfm);
-                rolapContext.getFormatters().add(formatter);
+                catalog_.getFormatters().add(formatter);
                 return formatter;
 
             }

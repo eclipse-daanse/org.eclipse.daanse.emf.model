@@ -11,7 +11,7 @@
 **********************************************************************/
 -->
 <?xmi version="1.0" encoding="UTF-8"?>
-<roma:RolapContext xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI"
+<roma:Catalog xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:roma="https://www.daanse.org/spec/org.eclipse.daanse.emd.model.rolapmapping"
   xsi:schemaLocation="https://www.daanse.org/spec/org.eclipse.daanse.emd.model.rolapmapping org.eclipse.daanse.emf.model.rolapmapping.ecore" />
