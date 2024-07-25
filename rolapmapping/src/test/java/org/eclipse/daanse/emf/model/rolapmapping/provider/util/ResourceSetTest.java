@@ -23,10 +23,10 @@ import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Map;
 
-import org.eclipse.daanse.emf.model.rolapmapping.RolapContext;
+import org.eclipse.daanse.emf.model.rolapmapping.Catalog;
 import org.eclipse.daanse.emf.model.rolapmapping.RolapMappingPackage;
 import org.eclipse.daanse.emf.model.rolapmapping.util.EmfModelTransformer;
-import org.eclipse.daanse.rolap.mapping.api.model.RolapContextMapping;
+import org.eclipse.daanse.rolap.mapping.api.model.CatalogMapping;
 import org.eclipse.daanse.rolap.mapping.mondrian.api.RolapMappingTransformer;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -61,18 +61,18 @@ public class ResourceSetTest {
         assertThat(saResourceSet.getServices()).hasSize(1);
 
         String data = Files.readString(Path.of(BASE_DIR, "src/test/resources/schema.xml"));
-        RolapContextMapping rc = transformer.transform(new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8)));
-        assertThat(rc).isNotNull();
+        CatalogMapping catalogMapping = transformer.transform(new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8)));
+        assertThat(catalogMapping).isNotNull();
 
         EmfModelTransformer emfMoTra = new EmfModelTransformer();
 
-        RolapContext emfRc = emfMoTra.transform(rc);
+        Catalog emfCatalog = emfMoTra.transform(catalogMapping);
         ResourceSet rs = saResourceSet.getService();
 
         Path file = Files.createTempFile(tempDir, "out", ".xmi");
         URI uri = URI.createFileURI(file.toAbsolutePath().toString());
         Resource resource = rs.createResource(uri);
-        resource.getContents().add(emfRc);
+        resource.getContents().add(emfCatalog);
 
         resource.save(Map.of());
         System.out.println(Files.readString(file));

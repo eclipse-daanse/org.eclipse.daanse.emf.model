@@ -19,8 +19,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import org.eclipse.daanse.emf.model.rolapmapping.provider.AnnotationHelper.SetupMappingProviderWithTestInstance;
-import org.eclipse.daanse.rolap.mapping.api.RolapContextMappingSupplier;
-import org.eclipse.daanse.rolap.mapping.api.model.RolapContextMapping;
+import org.eclipse.daanse.rolap.mapping.api.CatalogMappingSupplier;
+import org.eclipse.daanse.rolap.mapping.api.model.CatalogMapping;
 import org.gecko.emf.osgi.annotation.require.RequireEMF;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,13 +45,13 @@ public class EmfMappingProviderTest {
     @SetupMappingProviderWithTestInstance
     @Test
     public void loadSimpleFile(
-            @InjectService(cardinality = 1, timeout = 2000) ServiceAware<RolapContextMappingSupplier> saRolapContextMappingSupplier)
+            @InjectService(cardinality = 1, timeout = 2000) ServiceAware<CatalogMappingSupplier> saRolapContextMappingSupplier)
             throws SQLException, InterruptedException, IOException {
         assertThat(saRolapContextMappingSupplier.getServices()).hasSize(1);
 
-        RolapContextMappingSupplier rcms = saRolapContextMappingSupplier.getService();
+        CatalogMappingSupplier rcms = saRolapContextMappingSupplier.getService();
 
-        RolapContextMapping rCtx = rcms.get();
+        CatalogMapping rCtx = rcms.get();
 
         assertThat(rCtx).isNotNull();
 
