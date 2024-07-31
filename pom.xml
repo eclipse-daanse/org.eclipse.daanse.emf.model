@@ -37,6 +37,8 @@
   <modules>
     <module>rdbstructure</module>
     <module>rolapmapping</module>
+    <module>rolap.modifier</module>
+    <module>rdb.modifier</module>
   </modules>
 
 
