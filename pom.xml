@@ -39,6 +39,7 @@
     <module>rolapmapping</module>
     <module>rolap.modifier</module>
     <module>rdb.modifier</module>
+    <module>rdb.reader</module>
   </modules>
 
 
